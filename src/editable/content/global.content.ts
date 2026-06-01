@@ -3,33 +3,35 @@ import { slot4BrandConfig } from '@/editable/theme/brand.config'
 export const globalContent = {
   site: {
     name: slot4BrandConfig.siteName,
-    tagline: slot4BrandConfig.tagline || 'Independent reading platform',
+    tagline: slot4BrandConfig.tagline || 'Axidra business discovery platform',
     domain: slot4BrandConfig.domain,
     baseUrl: slot4BrandConfig.baseUrl,
   },
   nav: {
-    tagline: 'Independent reading platform',
+    tagline: 'Axidra.net business discovery',
     primaryLinks: [
-      { label: 'Articles', href: '/articles' },
-      { label: 'Visuals', href: '/image-sharing' },
-      { label: 'Listings', href: '/listings' },
+      { label: 'Home', href: '/' },
+      { label: 'Classifieds', href: '/classified' },
+      { label: 'Listings', href: '/listing' },
+      { label: 'Images', href: '/image' },
       { label: 'Contact', href: '/contact' },
     ],
     actions: {
-      primary: { label: 'Start exploring', href: '/' },
-      secondary: { label: 'Submit', href: '/contact' },
+      primary: { label: 'Create Axidra profile free', href: '/signup' },
+      secondary: { label: 'Login', href: '/login' },
     },
   },
   footer: {
-    tagline: 'Stories, resources, and discoverable posts',
-    description: 'A connected publishing surface for articles, visuals, listings, profiles, bookmarks, and downloadable resources.',
+    tagline: 'Axidra discovery for everyday needs',
+    description: 'Axidra.net is a practical discovery platform for browsing services, products, businesses, property posts, jobs, resources, and everyday offers.',
     columns: [
       {
         title: 'Explore',
         links: [
-          { label: 'Articles', href: '/articles' },
-          { label: 'Listings', href: '/listings' },
-          { label: 'Images', href: '/image-sharing' },
+          { label: 'Home', href: '/' },
+          { label: 'Classifieds', href: '/classified' },
+          { label: 'Business Listings', href: '/listing' },
+          { label: 'Image Posts', href: '/image' },
           { label: 'PDF Library', href: '/pdf' },
         ],
       },
@@ -38,15 +40,15 @@ export const globalContent = {
         links: [
           { label: 'About', href: '/about' },
           { label: 'Contact', href: '/contact' },
-          { label: 'Privacy', href: '/privacy' },
-          { label: 'Terms', href: '/terms' },
+          { label: 'Sign up', href: '/signup' },
+          { label: 'Login', href: '/login' },
         ],
       },
     ],
-    bottomNote: 'Built for clean discovery and connected publishing.',
+    bottomNote: 'Built for Axidra browsing and business discovery.',
   },
   commonLabels: {
-    readMore: 'Read more',
+    readMore: 'View details',
     viewAll: 'View all',
     explore: 'Explore',
     latest: 'Latest',
