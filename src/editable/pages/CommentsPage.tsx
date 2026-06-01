@@ -3,10 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { MessageSquare, Search } from 'lucide-react'
-import { Footer } from '@/components/shared/footer'
-import { NavbarShell } from '@/components/shared/navbar-shell'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { EditableSiteShell } from '@/editable/shell/EditableSiteShell'
 
 type StoredComment = {
   id: string
@@ -58,7 +55,7 @@ const readCommentsFromStorage = (): StoredComment[] => {
         })
       }
     } catch {
-      // Ignore corrupted local comment records.
+      // Ignore corrupted Axidra comment records.
     }
   }
 
@@ -94,34 +91,33 @@ export default function CommentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <NavbarShell />
+    <EditableSiteShell>
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         <section className="rounded-[2rem] border border-border bg-card p-6 shadow-sm sm:p-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                <MessageSquare className="h-4 w-4" /> Local comments
+                <MessageSquare className="h-4 w-4" /> Axidra comments
               </p>
-              <h1 className="mt-4 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Comments</h1>
+              <h1 className="mt-4 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Axidra Comments</h1>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-                Review comments saved in this browser from article pages.
+                Review Axidra comments saved in this browser from article pages.
               </p>
             </div>
-            <Button type="button" variant="outline" onClick={refreshComments}>Refresh comments</Button>
+            <button type="button" className="rounded-full border border-[var(--editable-border)] px-4 py-2 text-sm font-black" onClick={refreshComments}>Refresh comments</button>
           </div>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-md">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <input
                 value={query}
                 onChange={(event) => {
                   setQuery(event.target.value)
                   setPage(1)
                 }}
-                placeholder="Search comments..."
-                className="pl-9"
+                placeholder="Search Axidra comments..."
+                className="h-11 w-full rounded-2xl border border-[var(--editable-border)] bg-white pl-9 pr-3 text-sm outline-none"
               />
             </div>
             <p className="text-sm text-muted-foreground">
@@ -152,8 +148,8 @@ export default function CommentsPage() {
           </section>
         ) : (
           <section className="mt-8 rounded-2xl border border-dashed border-border bg-card/70 p-8 text-center">
-            <h2 className="text-xl font-semibold text-foreground">No comments yet</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Add a comment on any article page and it will appear here.</p>
+            <h2 className="text-xl font-semibold text-foreground">No Axidra comments yet</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Add a comment on any Axidra article page and it will appear here.</p>
           </section>
         )}
 
@@ -161,17 +157,12 @@ export default function CommentsPage() {
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">
             <span>Page {currentPage} of {totalPages}</span>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>
-                Previous
-              </Button>
-              <Button type="button" variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))}>
-                Next
-              </Button>
+              <button type="button" className="rounded-full border border-[var(--editable-border)] px-4 py-2 font-black disabled:opacity-40" disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</button>
+              <button type="button" className="rounded-full border border-[var(--editable-border)] px-4 py-2 font-black disabled:opacity-40" disabled={currentPage >= totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))}>Next</button>
             </div>
           </div>
         ) : null}
       </main>
-      <Footer />
-    </div>
+    </EditableSiteShell>
   )
 }
