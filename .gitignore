@@ -26,8 +26,5 @@ node_modules/
 .codex-output/
 .env.example
 
-.pnpm-store/v11/.pnpm-needs-build-marker
-.pnpm-store/v11/index.db
-.pnpm-store/v11/index.db-shm
-.pnpm-store/v11/index.db-wal
+
 next-env.d.ts
