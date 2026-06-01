@@ -1,4 +1,3 @@
-import { siteIdentity } from '@/config/site.identity'
 import { getFactoryState } from '@/design/factory/get-factory-state'
 import { getProductKind } from '@/design/factory/get-product-kind'
 
@@ -6,12 +5,12 @@ const { recipe } = getFactoryState()
 const productKind = getProductKind(recipe)
 
 export const slot4BrandConfig = {
-  siteName: siteIdentity.name,
-  tagline: siteIdentity.tagline,
-  domain: siteIdentity.domain,
-  baseUrl: siteIdentity.url,
+  siteName: 'Axidra',
+  tagline: 'Axidra business discovery platform',
+  domain: 'axidra.net',
+  baseUrl: 'https://axidra.net',
   productKind,
-  ogImage: siteIdentity.ogImage,
+  ogImage: '/og-default.png',
   accents:
     productKind === 'visual'
       ? { primary: '#8df0c8', surface: '#07101f' }
