@@ -139,7 +139,7 @@ export const visualSystem = {
     dark: 'border border-white/10 bg-[#1b1b1b] shadow-[0_18px_42px_rgba(0,0,0,0.22)]',
   },
   layout: {
-    page: 'mx-auto w-full max-w-[var(--editable-container)] px-4 sm:px-6 lg:px-0',
+    page: 'mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8',
     sectionY: 'py-12 sm:py-14 lg:py-16',
     cardGrid: 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3',
   },
