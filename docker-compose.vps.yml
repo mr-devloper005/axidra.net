@@ -2,10 +2,10 @@ services:
   app:
     container_name: ${NEXT_PUBLIC_SITE_CODE:-slot4_site}_app
     image: ${DEPLOY_IMAGE}
-    network_mode: bridge
     env_file:
       - .env
     restart: unless-stopped
+    network_mode: bridge
     ports:
       - "127.0.0.1:${APP_PORT:-3020}:3000"
     healthcheck:

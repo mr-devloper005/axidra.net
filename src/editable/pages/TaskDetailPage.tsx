@@ -1,14 +1,13 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Bookmark, Building2, Camera, Download, ExternalLink, FileText, Globe2, Mail, MapPin, MessageCircle, Phone, UserRound } from 'lucide-react'
+import { ArrowLeft, Bookmark, Building2, Camera, CheckCircle2, Download, ExternalLink, FileText, Globe2, Mail, MapPin, MessageCircle, Phone, Tag, UserRound } from 'lucide-react'
 import { buildPostMetadata, buildTaskMetadata } from '@/lib/seo'
 import { buildPostUrl, fetchArticleComments, fetchTaskPostBySlug, fetchTaskPosts } from '@/lib/task-data'
-import { getTaskConfig, type TaskKey } from '@/lib/site-config'
+import { getTaskConfig, SITE_CONFIG, type TaskKey } from '@/lib/site-config'
 import type { SitePost } from '@/lib/site-connector'
 import { EditableSiteShell } from '@/editable/shell/EditableSiteShell'
 import { getVisualPreset, visualSystem } from '@/editable/theme/visual-system'
-import { editableLogo } from '@/editable/theme/logo'
 
 export const revalidate = 3
 
@@ -55,26 +54,46 @@ const getBody = (post: SitePost) => {
   return asText(content.body) || asText(content.description) || asText(content.details) || post.summary || 'Details will appear here once available.'
 }
 
-const stripHtml = (raw: string) =>
-  raw
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim()
+const escapeHtml = (value: string) => value
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;')
+
+const safeUrl = (value: string) => /^https?:\/\//i.test(value) ? value : '#'
+
+const linkifyMarkdown = (value: string) => value
+  .replace(/\[([^\]]+)]\((https?:\/\/[^\s)]+)\)/gi, (_match, label, url) => `<a href="${safeUrl(url)}" target="_blank" rel="nofollow noopener noreferrer">${label}</a>`)
+
+const linkifyText = (value: string) => linkifyMarkdown(value)
+  .replace(/(^|[\s(>])((https?:\/\/)[^\s<)]+)/gi, (_match, prefix, url) => `${prefix}<a href="${safeUrl(url)}" target="_blank" rel="nofollow noopener noreferrer">${url}</a>`)
+
+const hardenLinks = (html: string) => html.replace(/<a\s+([^>]*href=["'][^"']+["'][^>]*)>/gi, (_match, attrs) => {
+  let next = String(attrs).replace(/\s+on\w+=("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+  if (!/\starget=/i.test(next)) next += ' target="_blank"'
+  if (!/\srel=/i.test(next)) next += ' rel="nofollow noopener noreferrer"'
+  return `<a ${next}>`
+})
+
+const sanitizeHtml = (html: string) => hardenLinks(html
+  .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+  .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+  .replace(/<(iframe|object|embed)[^>]*>[\s\S]*?<\/\1>/gi, '')
+  .replace(/\s+on\w+=("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+  .replace(/(href|src)=(['"])javascript:[\s\S]*?\2/gi, '$1="#"'))
 
 const formatPlainText = (raw: string) => {
-  const plain = /<[a-z][\s\S]*>/i.test(raw) ? stripHtml(raw) : raw
-  return plain.split(/\n{2,}/).map((part) => `<p>${part.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`).join('')
+  const value = raw.trim()
+  if (!value) return ''
+  if (/<[a-z][\s\S]*>/i.test(value)) return sanitizeHtml(linkifyMarkdown(value))
+  return value
+    .split(/\n{2,}/)
+    .map((part) => `<p>${linkifyText(escapeHtml(part).replace(/\n/g, '<br />'))}</p>`)
+    .join('')
 }
 
-const summaryText = (post: SitePost) => stripHtml(post.summary || asText(getContent(post).description) || asText(getContent(post).excerpt) || '')
+const summaryText = (post: SitePost) => post.summary || asText(getContent(post).description) || asText(getContent(post).excerpt) || ''
 const categoryOf = (post: SitePost, fallback: string) => asText(getContent(post).category) || post.tags?.[0] || fallback
 const mapSrcFor = (post: SitePost) => {
   const address = getField(post, ['address', 'location', 'city'])
@@ -172,6 +191,7 @@ function ClassifiedDetail({ post, related }: { post: SitePost; related: SitePost
   const price = getField(post, ['price', 'amount', 'budget'])
   const location = getField(post, ['location', 'address', 'city'])
   const condition = getField(post, ['condition', 'availability', 'type'])
+  const phone = getField(post, ['phone', 'telephone', 'mobile'])
   const email = getField(post, ['email'])
   const website = getField(post, ['website', 'url'])
   return (
@@ -185,11 +205,15 @@ function ClassifiedDetail({ post, related }: { post: SitePost; related: SitePost
           {condition ? <BadgeLine label="Condition" value={condition} /> : null}
           {location ? <BadgeLine label="Location" value={location} /> : null}
         </div>
-        
+        <div className="mt-8 flex flex-wrap gap-3">
+          {phone ? <a href={`tel:${phone}`} className="rounded-full bg-[var(--detail-bg)] px-5 py-3 text-sm font-black text-[var(--detail-text)]">Call now</a> : null}
+          {email ? <a href={`mailto:${email}`} className="rounded-full border border-white/25 px-5 py-3 text-sm font-black">Email</a> : null}
+        </div>
       </aside>
       <article className="rounded-[2.7rem] border border-[var(--editable-border)] bg-white p-6 shadow-[0_30px_90px_rgba(15,23,42,0.08)] sm:p-9">
-        <ImageStrip images={images} label="Offer images" large showLogo />
-        <ContactAction website={website} email={email} />
+        <ImageStrip images={images} label="Offer images" large />
+        <BodyContent post={post} />
+        <ContactAction website={website} phone={phone} email={email} />
         <RelatedPanel task="classified" post={post} related={related} />
       </article>
     </section>
@@ -312,22 +336,13 @@ function InfoGrid({ items }: { items: Array<[string, string, typeof MapPin]> }) 
   )
 }
 
-function ImageStrip({ images, label, large = false, showLogo = false }: { images: string[]; label: string; large?: boolean; showLogo?: boolean }) {
+function ImageStrip({ images, label, large = false }: { images: string[]; label: string; large?: boolean }) {
   if (!images.length) return null
   return (
     <section className="mt-8">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--detail-accent)]">{label}</p>
       <div className={`mt-4 grid gap-3 ${large ? 'sm:grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'}`}>
-        {images.slice(0, large ? 4 : 8).map((image, index) => (
-          <div key={`${image}-${index}`} className="relative overflow-hidden rounded-[1.4rem] ring-1 ring-[var(--editable-border)]">
-            <img src={image} alt="" className="aspect-[4/3] w-full object-cover" />
-            {showLogo && index === 0 ? (
-              <span className="absolute right-3 top-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-white/70 bg-white/90 shadow-lg">
-                <img src={editableLogo.src} alt={editableLogo.alt} className="h-full w-full object-cover" />
-              </span>
-            ) : null}
-          </div>
-        ))}
+        {images.slice(0, large ? 4 : 8).map((image, index) => <img key={`${image}-${index}`} src={image} alt="" className="aspect-[4/3] rounded-[1.4rem] object-cover ring-1 ring-[var(--editable-border)]" />)}
       </div>
     </section>
   )
@@ -349,6 +364,7 @@ function ContactAction({ website, phone, email }: { website?: string; phone?: st
       <p className="text-xs font-black uppercase tracking-[0.22em] opacity-55">Quick actions</p>
       <div className="mt-4 flex flex-wrap gap-3">
         {website ? <Link href={website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[var(--detail-text)] px-4 py-2 text-sm font-black text-[var(--detail-bg)]">Website <ExternalLink className="h-4 w-4" /></Link> : null}
+        {phone ? <a href={`tel:${phone}`} className="inline-flex items-center gap-2 rounded-full border border-[var(--editable-border)] px-4 py-2 text-sm font-black"><Phone className="h-4 w-4" /> Call</a> : null}
         {email ? <a href={`mailto:${email}`} className="inline-flex items-center gap-2 rounded-full border border-[var(--editable-border)] px-4 py-2 text-sm font-black"><Mail className="h-4 w-4" /> Email</a> : null}
       </div>
     </div>
@@ -359,11 +375,20 @@ function BadgeLine({ label, value }: { label: string; value: string }) {
   return <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm"><span className="font-black uppercase tracking-[0.16em] opacity-60">{label}</span><span className="font-black">{value}</span></div>
 }
 
-function RelatedPanel({ task, post: _post, related, compact: _compact = false }: { task: TaskKey; post: SitePost; related: SitePost[]; compact?: boolean }) {
+function RelatedPanel({ task, post, related, compact = false }: { task: TaskKey; post: SitePost; related: SitePost[]; compact?: boolean }) {
   const taskConfig = getTaskConfig(task)
   return (
     <aside className="min-w-0 space-y-5">
-  
+      {!compact ? (
+        <div className="rounded-[2rem] border border-[var(--editable-border)] bg-white/70 p-5 backdrop-blur">
+          <p className="text-xs font-black uppercase tracking-[0.22em] opacity-55">About this post</p>
+          <div className="mt-4 grid gap-3 text-sm font-bold opacity-75">
+            <p className="inline-flex items-center gap-2"><Tag className="h-4 w-4" /> Task: {taskConfig?.label || task}</p>
+            <p className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> Site: {SITE_CONFIG.name}</p>
+            {post.publishedAt ? <p>Published: {new Date(post.publishedAt).toLocaleDateString()}</p> : null}
+          </div>
+        </div>
+      ) : null}
       {related.length ? (
         <div className="rounded-[2rem] border border-[var(--editable-border)] bg-white/70 p-5 backdrop-blur">
           <div className="flex items-center justify-between gap-3">
@@ -395,7 +420,7 @@ function RelatedCard({ task, post }: { task: TaskKey; post: SitePost }) {
 function EditableComments({ slug, comments }: { slug: string; comments: Array<{ id: string; name: string; comment: string; createdAt: string }> }) {
   return (
     <section className="mt-10 rounded-[2rem] border border-[var(--editable-border)] bg-white/70 p-5">
-      <div className="flex items-center gap-2 text-lg font-black"><MessageCircle className="h-5 w-5" /> Axidra comments</div>
+      <div className="flex items-center gap-2 text-lg font-black"><MessageCircle className="h-5 w-5" /> Comments</div>
       <div className="mt-5 grid gap-3">
         {comments.slice(0, 5).map((comment) => (
           <div key={comment.id} className="rounded-2xl border border-[var(--editable-border)] bg-white p-4">

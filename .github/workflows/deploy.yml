@@ -13,6 +13,10 @@ concurrency:
   group: deploy-${{ github.repository }}
   cancel-in-progress: true
 
+env:
+  MAX_PUBLIC_IMAGE_KB: 5000
+  MAX_PUBLIC_ICON_KB: 5000
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -95,87 +99,53 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      VPS_HOST: ${{ secrets.VPS_HOST }}
-      VPS_PORT: ${{ secrets.VPS_PORT }}
-      VPS_USER: ${{ secrets.VPS_USER }}
     steps:
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
-
-      - name: Validate SSH connectivity
-        run: |
-          set -euo pipefail
-          test -n "$VPS_HOST"
-          test -n "$VPS_PORT"
-          test -n "$VPS_USER"
-          echo "Resolving $VPS_HOST"
-          getent ahostsv4 "$VPS_HOST"
-          echo "Checking TCP reachability on $VPS_HOST:$VPS_PORT"
-          nc -zv -w 10 "$VPS_HOST" "$VPS_PORT"
-
-      - name: Add known hosts
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          ssh-keyscan -T 10 -p "$VPS_PORT" "$VPS_HOST" >> ~/.ssh/known_hosts
-
       - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.2
         env:
           APP_ENV_PRODUCTION: ${{ secrets.APP_ENV_PRODUCTION }}
           DEPLOY_IMAGE: ${{ needs.build-and-push.outputs.image }}
           REPO_NAME: ${{ github.event.repository.name }}
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-        run: |
-          set -euo pipefail
-          APP_ENV_PRODUCTION_B64="$(printf '%s' "$APP_ENV_PRODUCTION" | base64 | tr -d '\n')"
-          DEPLOY_IMAGE_Q="$(printf '%q' "$DEPLOY_IMAGE")"
-          REPO_NAME_Q="$(printf '%q' "$REPO_NAME")"
-          GHCR_USERNAME_Q="$(printf '%q' "$GHCR_USERNAME")"
-          GHCR_TOKEN_Q="$(printf '%q' "$GHCR_TOKEN")"
-          APP_ENV_PRODUCTION_B64_Q="$(printf '%q' "$APP_ENV_PRODUCTION_B64")"
-
-          ssh \
-            -p "$VPS_PORT" \
-            -o StrictHostKeyChecking=yes \
-            -o ConnectTimeout=20 \
-            "$VPS_USER@$VPS_HOST" \
-            "export DEPLOY_IMAGE=$DEPLOY_IMAGE_Q REPO_NAME=$REPO_NAME_Q GHCR_USERNAME=$GHCR_USERNAME_Q GHCR_TOKEN=$GHCR_TOKEN_Q APP_ENV_PRODUCTION_B64=$APP_ENV_PRODUCTION_B64_Q; bash -s" <<'EOF'
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          timeout: 180s
+          command_timeout: 20m
+          envs: APP_ENV_PRODUCTION,DEPLOY_IMAGE,REPO_NAME,GHCR_USERNAME,GHCR_TOKEN
+          script: |
             set -euo pipefail
-            APP_ROOT="/opt/slot4-sites"
+            APP_ROOT="/opt/automation-sites"
             APP_DIR="$APP_ROOT/$REPO_NAME"
 
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null || true
+            chmod 700 ~/.ssh
+            chmod 600 ~/.ssh/known_hosts 2>/dev/null || true
+
             mkdir -p "$APP_ROOT"
-
-            if [ -z "${GHCR_USERNAME:-}" ] || [ -z "${GHCR_TOKEN:-}" ]; then
-              echo "Deploy preflight failed: GHCR_USERNAME and GHCR_TOKEN secrets are required for repo clone and VPS image pull."
-              exit 1
-            fi
-
-            GIT_REMOTE_URL="https://x-access-token:${GHCR_TOKEN}@github.com/mr-devloper005/${REPO_NAME}.git"
-
-            if [ -d "$APP_DIR" ] && [ ! -d "$APP_DIR/.git" ]; then
-              mv "$APP_DIR" "${APP_DIR}.bootstrap-backup-$(date +%s)"
-            fi
-
             if [ ! -d "$APP_DIR/.git" ]; then
-              git clone "$GIT_REMOTE_URL" "$APP_DIR"
+              git clone "https://x-access-token:${GHCR_TOKEN}@github.com/mr-devloper005/$REPO_NAME.git" "$APP_DIR"
             fi
 
             cd "$APP_DIR"
 
-            printf '%s' "$APP_ENV_PRODUCTION_B64" | base64 -d > .env
+            printf '%s\n' "$APP_ENV_PRODUCTION" > .env
             printf '\nDEPLOY_IMAGE=%s\n' "$DEPLOY_IMAGE" >> .env
             chmod 600 .env
 
-            git remote set-url origin "$GIT_REMOTE_URL" 2>/dev/null || true
+            git remote set-url origin "https://x-access-token:${GHCR_TOKEN}@github.com/mr-devloper005/$REPO_NAME.git" 2>/dev/null || true
             git fetch origin main
             git checkout main
             git reset --hard origin/main
 
+            if [ -z "${GHCR_USERNAME:-}" ] || [ -z "${GHCR_TOKEN:-}" ]; then
+              echo "Deploy preflight failed: GHCR_USERNAME and GHCR_TOKEN secrets are required for VPS image pull."
+              exit 1
+            fi
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
             docker compose -f docker-compose.vps.yml pull
@@ -193,4 +163,3 @@ jobs:
             done
             echo "Deploy health check failed after restart."
             exit 1
-          EOF
