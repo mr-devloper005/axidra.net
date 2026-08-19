@@ -10,37 +10,37 @@ import { EditableSiteShell } from '@/editable/shell/EditableSiteShell'
 function getTone(kind: ReturnType<typeof getProductKind>) {
   if (kind === 'directory') {
     return {
-      shell: 'bg-[#f8fbff] text-slate-950',
-      panel: 'border border-slate-200 bg-white',
-      soft: 'border border-slate-200 bg-slate-50',
-      muted: 'text-slate-600',
-      action: 'bg-slate-950 text-white hover:bg-slate-800',
+      shell: 'bg-white text-[#20252d]',
+      panel: 'border border-[#dedede] bg-white',
+      soft: 'border border-[#dedede] bg-[#f5f5f5]',
+      muted: 'text-[#606774]',
+      action: 'bg-[#20252d] text-white hover:bg-[#20252d]/90',
     }
   }
   if (kind === 'editorial') {
     return {
-      shell: 'bg-[#fbf6ee] text-[#241711]',
-      panel: 'border border-[#dcc8b7] bg-[#fffdfa]',
-      soft: 'border border-[#e6d6c8] bg-[#fff4e8]',
-      muted: 'text-[#6e5547]',
-      action: 'bg-[#241711] text-[#fff1e2] hover:bg-[#3a241b]',
+      shell: 'bg-[#f7f7f7] text-[#20252d]',
+      panel: 'border border-[#dedede] bg-white',
+      soft: 'border border-[#dedede] bg-[#f5f5f5]',
+      muted: 'text-[#606774]',
+      action: 'bg-[#20252d] text-white hover:bg-[#20252d]/90',
     }
   }
   if (kind === 'visual') {
     return {
-      shell: 'bg-[#07101f] text-white',
+      shell: 'bg-[#1b1b1b] text-white',
       panel: 'border border-white/10 bg-white/6',
       soft: 'border border-white/10 bg-white/5',
-      muted: 'text-slate-300',
-      action: 'bg-[#8df0c8] text-[#07111f] hover:bg-[#77dfb8]',
+      muted: 'text-[#858b95]',
+      action: 'bg-[#df1f2d] text-white hover:bg-[#df1f2d]/90',
     }
   }
   return {
-    shell: 'bg-[#f7f1ea] text-[#261811]',
-    panel: 'border border-[#ddcdbd] bg-[#fffaf4]',
-    soft: 'border border-[#e8dbce] bg-[#f3e8db]',
-    muted: 'text-[#71574a]',
-    action: 'bg-[#5b2b3b] text-[#fff0f5] hover:bg-[#74364b]',
+    shell: 'bg-[#f7f7f7] text-[#20252d]',
+    panel: 'border border-[#dedede] bg-white',
+    soft: 'border border-[#dedede] bg-[#f5f5f5]',
+    muted: 'text-[#606774]',
+    action: 'bg-[#20252d] text-white hover:bg-[#20252d]/90',
   }
 }
 

@@ -66,21 +66,6 @@ body[data-site-shell] main > section > div:first-child > div.mt-8 > p:nth-child(
   line-height: 2rem;
 }
 
-body[data-site-shell] header nav a[href="/"] span:has(> img[src*="favicon.png"]),
-body[data-site-shell] footer a[href="/"]:has(img[src*="favicon.png"]) {
-  background: #020710 url("../assets/axidra-page-logo.png") center / cover no-repeat !important;
-}
-
-body[data-site-shell] header nav a[href="/"] span:has(> img[src*="favicon.png"]) {
-  height: 3rem !important;
-  width: 3rem !important;
-  padding: 0 !important;
-}
-
-body[data-site-shell] header nav a[href="/"] img[src*="favicon.png"],
-body[data-site-shell] footer a[href="/"] img[src*="favicon.png"] {
-  opacity: 0 !important;
-}
 
 body[data-site-shell="article-home"] footer::before {
   content: "";
