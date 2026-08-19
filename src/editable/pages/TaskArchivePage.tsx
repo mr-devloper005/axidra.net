@@ -38,10 +38,11 @@ const getImages = (post: SitePost) => {
 const placeholder = '/placeholder.svg?height=900&width=1200'
 const getImage = (post: SitePost) => getImages(post)[0] || placeholder
 const getCategory = (post: SitePost, fallback: string) => asText(getContent(post).category) || post.tags?.[0] || fallback
-const getSummary = (post: SitePost) => {
-  const raw = post.summary || asText(getContent(post).description) || asText(getContent(post).excerpt) || asText(getContent(post).body)
-  return raw.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
-}
+const stripTags = (value: string) => value
+  .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+  .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ')
+  .replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+const getSummary = (post: SitePost) => stripTags(post.summary || asText(getContent(post).description) || asText(getContent(post).excerpt) || asText(getContent(post).body))
 const getField = (post: SitePost, keys: string[]) => {
   const content = getContent(post)
   for (const key of keys) {
@@ -108,7 +109,7 @@ export function TaskArchiveView({ task, posts, pagination, category, basePath }:
           <section className="mx-auto grid max-w-[var(--editable-container)] gap-12 px-4 py-10 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-0">
             <ClassifiedSidebar basePath={basePath} category={category} />
             <div className="min-w-0">
-              <form action="/search" className="mb-6 flex max-w-[420px] border border-[#cfcfcf]">
+              <form action="/search" className="mb-6 flex max-w-[420px] border border-[#dedede]">
                 <input name="q" placeholder="Keywords" className="h-12 min-w-0 flex-1 px-4 text-sm outline-none" />
                 <button className="grid h-12 w-12 place-items-center bg-[var(--archive-accent)] text-white" aria-label="Search"><Search className="h-5 w-5" /></button>
               </form>
@@ -135,9 +136,9 @@ export function TaskArchiveView({ task, posts, pagination, category, basePath }:
               <p className="mt-5 max-w-2xl text-base leading-7 text-[#606774]">{voice?.description || globalContent.site.tagline}</p>
               <p className="mt-5 border-l-4 border-[var(--archive-accent)] bg-[#f7f7f7] p-4 text-sm font-semibold text-[#606774]">{deck.promise}</p>
             </div>
-            <form action={basePath} className="border border-[#dedede] bg-[#f8f8f8] p-5">
+            <form action={basePath} className="border border-[#dedede] bg-[#f7f7f7] p-5">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em]"><Filter className="h-4 w-4" /> Filter by category</div>
-              <select name="category" defaultValue={category} className="mt-4 h-12 w-full border border-[#cfcfcf] bg-white px-4 text-sm font-semibold outline-none">
+              <select name="category" defaultValue={category} className="mt-4 h-12 w-full border border-[#dedede] bg-white px-4 text-sm font-semibold outline-none">
                 <option value="all">All categories</option>
                 {CATEGORY_OPTIONS.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
               </select>
@@ -166,7 +167,7 @@ function ClassifiedSidebar({ basePath, category }: { basePath: string; category:
     <aside className="space-y-10 lg:sticky lg:top-28 lg:self-start">
       <div>
         <h2 className="text-lg font-extrabold uppercase">Search by Location</h2>
-        <form action={basePath} className="mt-3 flex border border-[#cfcfcf]">
+        <form action={basePath} className="mt-3 flex border border-[#dedede]">
           <input name="location" defaultValue={globalContent.site.domain} className="h-11 min-w-0 flex-1 px-4 text-sm outline-none" />
           <button className="w-11 text-[#858b95]" aria-label="Search location"><Search className="mx-auto h-4 w-4" /></button>
         </form>
@@ -176,7 +177,7 @@ function ClassifiedSidebar({ basePath, category }: { basePath: string; category:
         <p className="mt-1 text-[11px] uppercase text-[#858b95]">Filter by category</p>
         <div className="mt-6 grid gap-4">
           {displayCategories.map((item) => (
-            <Link key={item.slug} href={pageHref(basePath, item.slug, 1)} className={`flex items-center gap-2 text-base ${category === item.slug ? 'font-bold text-[#20252d]' : 'text-[#4e5560]'}`}>
+            <Link key={item.slug} href={pageHref(basePath, item.slug, 1)} className={`flex items-center gap-2 text-base ${category === item.slug ? 'font-bold text-[#20252d]' : 'text-[#606774]'}`}>
               <ChevronRight className="h-4 w-4" /> {item.name}
             </Link>
           ))}
@@ -185,7 +186,7 @@ function ClassifiedSidebar({ basePath, category }: { basePath: string; category:
       <form action={basePath}>
         <h2 className="text-lg font-extrabold uppercase">Sort by</h2>
         <div className="mt-3 flex">
-          <select name="sort" className="h-11 min-w-0 flex-1 border border-[#cfcfcf] bg-white px-3 text-sm outline-none">
+          <select name="sort" className="h-11 min-w-0 flex-1 border border-[#dedede] bg-white px-3 text-sm outline-none">
             <option>Relevant</option>
             <option>Latest</option>
             <option>Popular</option>
@@ -196,7 +197,7 @@ function ClassifiedSidebar({ basePath, category }: { basePath: string; category:
       <div className="border border-[#dedede] bg-white p-6">
         <h2 className="text-lg font-extrabold">Top Searches on Axidra</h2>
         <div className="mt-6 grid gap-4">
-          {topSearches.map((item) => <Link key={item} href={basePath} className="flex items-center gap-2 text-base text-[#4e5560]"><ChevronRight className="h-4 w-4" /> {item}</Link>)}
+          {topSearches.map((item) => <Link key={item} href={basePath} className="flex items-center gap-2 text-base text-[#606774]"><ChevronRight className="h-4 w-4" /> {item}</Link>)}
         </div>
       </div>
     </aside>
@@ -206,16 +207,16 @@ function ClassifiedSidebar({ basePath, category }: { basePath: string; category:
 function Pagination({ pagination, category, basePath, page }: { pagination: SiteFeedPagination; category: string; basePath: string; page: number }) {
   return (
     <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-      {pagination.hasPrevPage ? <Link href={pageHref(basePath, category, page - 1)} className="border border-[#cfcfcf] bg-white px-5 py-3 text-sm font-bold uppercase">Previous</Link> : null}
+      {pagination.hasPrevPage ? <Link href={pageHref(basePath, category, page - 1)} className="border border-[#dedede] bg-white px-5 py-3 text-sm font-bold uppercase">Previous</Link> : null}
       <span className="bg-[#20252d] px-5 py-3 text-sm font-bold uppercase text-white">Page {page} of {pagination.totalPages || 1}</span>
-      {pagination.hasNextPage ? <Link href={pageHref(basePath, category, page + 1)} className="border border-[#cfcfcf] bg-white px-5 py-3 text-sm font-bold uppercase">Next</Link> : null}
+      {pagination.hasNextPage ? <Link href={pageHref(basePath, category, page + 1)} className="border border-[#dedede] bg-white px-5 py-3 text-sm font-bold uppercase">Next</Link> : null}
     </div>
   )
 }
 
 function ArchiveEmpty({ label }: { label: string }) {
   return (
-    <div className="border border-dashed border-[#cfcfcf] bg-white p-10 text-center">
+    <div className="border border-dashed border-[#dedede] bg-white p-10 text-center">
       <Search className="mx-auto h-8 w-8 text-[#858b95]" />
       <h2 className="mt-4 text-3xl font-extrabold">No {label.toLowerCase()} found</h2>
       <p className="mt-2 text-sm text-[#606774]">Try another category or refresh this page after publishing new content.</p>
@@ -242,12 +243,12 @@ function ClassifiedArchiveCard({ post, href, index }: { post: SitePost; href: st
   return (
     <article className="border-b border-[#dedede] py-10">
       <div className="grid gap-8 md:grid-cols-[200px_minmax(0,1fr)]">
-        <Link href={href} className="block bg-[#f1f3f5]">
+        <Link href={href} className="block bg-[#eef0f4]">
           {image ? <img src={image} alt="" className="aspect-square w-full object-cover" /> : <div className="grid aspect-square place-items-center text-[#858b95]"><Megaphone className="h-12 w-12" /></div>}
         </Link>
         <div className="min-w-0">
           <Link href={href} className="text-2xl font-extrabold uppercase tracking-tight transition hover:text-[var(--archive-accent)]">{post.title || `Classified item ${index + 1}`}</Link>
-          <p className="mt-3 max-w-2xl text-[15px] leading-6 text-[#6a717d]">{summary || 'Axidra details, images, and contact information are available on the listing page.'}</p>
+          <p className="mt-3 max-w-2xl text-[15px] leading-6 text-[#606774]">{summary || 'Axidra details, images, and contact information are available on the listing page.'}</p>
           {price ? <p className="mt-3 text-xl font-bold text-[var(--archive-accent)]">{price}</p> : null}
           <p className="mt-3 text-sm"><span className="font-bold">Sale type:</span> Retail Only</p>
           <p className="mt-3 text-sm font-bold">Added By:</p>
@@ -291,7 +292,7 @@ function ListingArchiveCard({ post, href }: { post: SitePost; href: string }) {
   const phone = getField(post, ['phone', 'telephone', 'mobile'])
   return (
     <Link href={href} className="group grid gap-5 border border-[#dedede] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[120px_1fr]">
-      <div className="flex h-28 w-28 items-center justify-center overflow-hidden bg-[#f1f3f5] ring-1 ring-[#dedede]">
+      <div className="flex h-28 w-28 items-center justify-center overflow-hidden bg-[#eef0f4] ring-1 ring-[#dedede]">
         {logo ? <img src={logo} alt="" className="h-full w-full object-cover" /> : <BriefcaseBusiness className="h-10 w-10 text-[#858b95]" />}
       </div>
       <div className="min-w-0">
@@ -314,7 +315,7 @@ function ImageArchiveCard({ post, href, index }: { post: SitePost; href: string;
         <img src={getImage(post)} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
       </div>
       <div className="p-5">
-        <div className="inline-flex items-center gap-2 bg-[#f1f3f5] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em]"><ImageIcon className="h-3 w-3" /> Visual</div>
+        <div className="inline-flex items-center gap-2 bg-[#eef0f4] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em]"><ImageIcon className="h-3 w-3" /> Visual</div>
         <h2 className="mt-4 line-clamp-3 text-xl font-extrabold leading-tight">{post.title}</h2>
       </div>
     </Link>
@@ -341,7 +342,7 @@ function PdfArchiveCard({ post, href }: { post: SitePost; href: string }) {
     <Link href={href} className="group border border-[#dedede] bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
       <div className="flex items-start justify-between gap-4">
         <div className="bg-[#20252d] p-5 text-white"><FileText className="h-8 w-8" /></div>
-        <span className="bg-[#f1f3f5] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em]">{getCategory(post, 'PDF')}</span>
+        <span className="bg-[#eef0f4] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em]">{getCategory(post, 'PDF')}</span>
       </div>
       <h2 className="mt-8 text-2xl font-extrabold leading-tight">{post.title}</h2>
       <p className="mt-4 line-clamp-4 text-sm leading-6 text-[#606774]">{getSummary(post)}</p>
@@ -355,7 +356,7 @@ function ProfileArchiveCard({ post, href }: { post: SitePost; href: string }) {
   const role = getField(post, ['role', 'designation', 'company', 'location'])
   return (
     <Link href={href} className="group border border-[#dedede] bg-white p-6 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-      <div className="mx-auto flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[#f1f3f5] ring-1 ring-[#dedede]">
+      <div className="mx-auto flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[#eef0f4] ring-1 ring-[#dedede]">
         {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : <UserRound className="h-10 w-10 text-[#858b95]" />}
       </div>
       <h2 className="mt-5 text-xl font-extrabold leading-tight">{post.title}</h2>

@@ -64,13 +64,13 @@ function SectionShell({ children, className = '' }: { children: ReactNode; class
 
 function ServicePanel({ image, title, items, tall = false }: { image: string; title: string; items: string[]; tall?: boolean }) {
   return (
-    <article className={`relative overflow-hidden bg-[#222] text-white ${tall ? 'min-h-[486px]' : 'min-h-[228px]'}`}>
+    <article className={`relative overflow-hidden bg-[#1b1b1b] text-white ${tall ? 'min-h-[486px]' : 'min-h-[228px]'}`}>
       <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70" />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.62),rgba(0,0,0,0.22))]" />
       <div className="relative flex min-h-[inherit] flex-col justify-end p-7">
         <h3 className="mb-3 text-lg font-bold">{title}</h3>
         <ul className="grid gap-2 text-[18px] font-semibold leading-tight">
-          {items.map((item) => <li key={item} className="flex items-center gap-2"><span className="grid h-4 w-4 place-items-center rounded-full bg-white text-[10px] text-[#2b5f8a]">›</span>{item}</li>)}
+          {items.map((item) => <li key={item} className="flex items-center gap-2"><span className="grid h-4 w-4 place-items-center rounded-full bg-white text-[10px] text-[#6684dc]">›</span>{item}</li>)}
         </ul>
       </div>
     </article>
@@ -79,10 +79,10 @@ function ServicePanel({ image, title, items, tall = false }: { image: string; ti
 
 function RetailCard({ title, image, blue = false }: { title: string; image: string; blue?: boolean }) {
   return (
-    <Link href="/classified" className={`group relative min-h-[226px] overflow-hidden border border-[#d6d6d6] ${blue ? 'bg-[#6684dc] text-white' : 'bg-white text-[#20252d]'}`}>
+    <Link href="/classified" className={`group relative min-h-[226px] overflow-hidden border border-[#dedede] ${blue ? 'bg-[#6684dc] text-white' : 'bg-white text-[#20252d]'}`}>
       <div className="p-4">
         <h3 className="text-lg font-extrabold uppercase leading-tight">{title}</h3>
-        <p className={`mt-1 text-xs font-bold uppercase ${blue ? 'text-white' : 'text-[#777f8b]'}`}>{globalContent.site.domain}</p>
+        <p className={`mt-1 text-xs font-bold uppercase ${blue ? 'text-white' : 'text-[#858b95]'}`}>{globalContent.site.domain}</p>
       </div>
       <img src={image} alt="" className="absolute bottom-0 right-0 max-h-[145px] max-w-[82%] object-contain transition duration-300 group-hover:scale-105" />
     </Link>
@@ -101,8 +101,8 @@ function ProductMosaic({ posts, primaryTask, primaryRoute }: { posts: SitePost[]
         const image = post ? getEditablePostImage(post) : retailImages[index % retailImages.length]
         const large = index === 1
         return (
-          <Link key={`${title}-${index}`} href={href} className={`${large ? 'row-span-2 min-h-[448px]' : 'min-h-[220px]'} group relative overflow-hidden border border-[#d6d6d6] bg-white`}>
-            <h3 className="relative z-10 p-4 text-xl font-medium text-[#2f4263]">{title}</h3>
+          <Link key={`${title}-${index}`} href={href} className={`${large ? 'row-span-2 min-h-[448px]' : 'min-h-[220px]'} group relative overflow-hidden border border-[#dedede] bg-white`}>
+            <h3 className="relative z-10 p-4 text-xl font-medium text-[#20252d]">{title}</h3>
             <img src={image} alt="" className="absolute bottom-0 left-1/2 max-h-[78%] max-w-[92%] -translate-x-1/2 object-contain transition duration-300 group-hover:scale-105" />
           </Link>
         )
@@ -115,16 +115,16 @@ export function EditableHomeHero({ primaryRoute }: HomeSectionProps) {
   const heroTitle = pagesContent.home.hero.title.join(' ')
   return (
     <section className="relative">
-      <div className="relative min-h-[500px] overflow-hidden bg-[#ececf6]">
+      <div className="relative min-h-[500px] overflow-hidden bg-[#f1f3f8]">
         <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
-        <div className="absolute inset-0 bg-[rgba(25,25,32,0.26)]" />
+        <div className="absolute inset-0 bg-[rgba(0,0,0,0.26)]" />
         <div className="relative mx-auto flex min-h-[500px] max-w-[var(--editable-container)] flex-col items-center justify-center px-4 text-center text-white sm:px-6 lg:px-0">
           <h1 className="max-w-[980px] text-4xl font-extrabold leading-tight tracking-[0.02em] drop-shadow-sm sm:text-5xl">{heroTitle}</h1>
           <p className="mt-3 text-xl font-bold drop-shadow-sm">{pagesContent.home.hero.description}</p>
           <form action="/search" className="mt-8 flex w-full max-w-[670px] flex-col overflow-hidden shadow-[0_12px_24px_rgba(0,0,0,0.22)] sm:flex-row">
-            <input name="q" placeholder={pagesContent.home.hero.searchPlaceholder} className="h-12 min-w-0 flex-1 bg-white px-4 text-[15px] text-[#424955] outline-none" />
-            <label className="flex h-12 min-w-0 flex-1 items-center bg-white px-4 text-[#606774] sm:border-l sm:border-[#ececec]">
-              <MapPin className="mr-3 h-5 w-5 text-[#168245]" />
+            <input name="q" placeholder={pagesContent.home.hero.searchPlaceholder} className="h-12 min-w-0 flex-1 bg-white px-4 text-[15px] text-[#20252d] outline-none" />
+            <label className="flex h-12 min-w-0 flex-1 items-center bg-white px-4 text-[#606774] sm:border-l sm:border-[#dedede]">
+              <MapPin className="mr-3 h-5 w-5 text-[#df1f2d]" />
               <input name="location" placeholder="Where are you looking for?" className="min-w-0 flex-1 bg-transparent text-[15px] outline-none" />
             </label>
             <button className="grid h-12 w-full place-items-center bg-[var(--slot4-accent-fill)] text-white sm:w-16" aria-label="Search"><Search className="h-5 w-5" /></button>
@@ -134,13 +134,13 @@ export function EditableHomeHero({ primaryRoute }: HomeSectionProps) {
       <SectionShell className="bg-white py-16">
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-extrabold tracking-tight text-[#20252d]">All Categories</h2>
-          <p className="mt-2 text-sm font-semibold text-[#777f8b]">Browse Axidra by business, health, technology, services, shops, and local needs.</p>
+          <p className="mt-2 text-sm font-semibold text-[#858b95]">Browse Axidra by business, health, technology, services, shops, and local needs.</p>
         </div>
         <div className="mx-auto grid max-w-[1140px] grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9">
           {categories.map(({ label, slug, icon: Icon }) => (
             <Link key={`${label}-${slug}`} href={categoryHref(primaryRoute, slug)} className="group flex min-h-[114px] flex-col items-center justify-center border border-[#dedede] bg-white p-3 text-center transition hover:border-[var(--slot4-accent-fill)] hover:shadow-[0_10px_24px_rgba(0,0,0,0.08)]">
-              <Icon className="h-8 w-8 text-[#c6c9cf] transition group-hover:text-[var(--slot4-accent-fill)]" strokeWidth={2.2} />
-              <span className="mt-4 text-[11px] font-extrabold uppercase leading-snug text-[#050505]">{label}</span>
+              <Icon className="h-8 w-8 text-[#858b95] transition group-hover:text-[var(--slot4-accent-fill)]" strokeWidth={2.2} />
+              <span className="mt-4 text-[11px] font-extrabold uppercase leading-snug text-[#20252d]">{label}</span>
             </Link>
           ))}
         </div>
@@ -156,7 +156,7 @@ export function EditableStoryRail(_props: HomeSectionProps) {
     { title: 'Family Services', image: serviceImages[2], items: ['Family Counselling', 'De-Addiction Counselling', 'Parental Counselling', 'Child Counselling', 'Pre Marriage Counselling'] },
   ]
   return (
-    <section className="bg-[#f6f6f6] py-12">
+    <section className="bg-[#f5f5f5] py-12">
       <div className={dc.shell.section}>
         <h2 className={dc.type.sectionTitle}>Find Service Providers On Axidra</h2>
         <div className="mt-8 grid gap-5 lg:grid-cols-[0.82fr_1.1fr]">
@@ -212,11 +212,11 @@ export function EditableMagazineSplit({ primaryTask, primaryRoute, posts }: Home
         <div className={dc.shell.section}>
           <div className="grid gap-4 md:grid-cols-2">
             {posts.slice(0, 2).map((post) => (
-              <Link key={post.id || post.slug} href={postHref(primaryTask, post, primaryRoute)} className="group relative min-h-[260px] overflow-hidden bg-black text-white">
+              <Link key={post.id || post.slug} href={postHref(primaryTask, post, primaryRoute)} className="group relative min-h-[260px] overflow-hidden bg-[#1b1b1b] text-white">
                 <img src={getEditablePostImage(post)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-62 transition duration-300 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.05),rgba(0,0,0,0.76))]" />
                 <div className="relative flex min-h-[260px] flex-col justify-end p-7">
-                  <p className="text-sm font-bold text-[#ffd56f]">{getEditableCategory(post)}</p>
+                  <p className="text-sm font-bold text-[#efc36c]">{getEditableCategory(post)}</p>
                   <h3 className="mt-2 max-w-xl text-2xl font-extrabold leading-tight">{post.title}</h3>
                   <p className="mt-3 line-clamp-2 text-sm leading-6">{getEditableExcerpt(post, 130)}</p>
                 </div>
@@ -241,9 +241,9 @@ export function EditableTimeCollections({ primaryTask, primaryRoute, posts }: Ho
         </div>
       </section>
 
-      <section className="bg-[#f2f3f6] py-16 text-center">
+      <section className="bg-[#f1f3f8] py-16 text-center">
         <div className={dc.shell.section}>
-          <h2 className="mx-auto max-w-5xl text-5xl font-light leading-tight text-[#3a3a3a]">Attract new customers with your Axidra business listing.</h2>
+          <h2 className="mx-auto max-w-5xl text-5xl font-light leading-tight text-[#20252d]">Attract new customers with your Axidra business listing.</h2>
           <p className="mx-auto mt-8 max-w-5xl text-[15px] leading-7 text-black">Axidra helps people quickly search for business details, products, and services relevant to them. A clear listing can improve visibility and make it easier for customers to contact a provider.</p>
           <div className="mx-auto mt-14 max-w-4xl">
             <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80" alt="" className="mx-auto max-h-[430px] w-full object-cover" />
@@ -274,7 +274,7 @@ export function EditableHomeCta() {
       <img src={promoImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.76),rgba(0,0,0,0.15))]" />
       <div className="relative mx-auto max-w-[var(--editable-container)] px-4 py-20 sm:px-6 lg:px-0">
-        <p className="inline-flex bg-[#93d35b]/85 px-9 py-4 text-3xl font-light">Is your business visible on Axidra?</p>
+        <p className="inline-flex bg-[#df1f2d]/85 px-9 py-4 text-3xl font-light">Is your business visible on Axidra?</p>
         <h2 className="mt-6 text-5xl font-light">Create your <span className="font-extrabold">{globalContent.site.name}</span> Profile</h2>
         <p className="mt-5 max-w-xl text-xl leading-8">Add your business, product, or service details and help customers reach you faster on Axidra.net.</p>
         <Link href="/signup" className="mt-10 inline-flex bg-[var(--slot4-accent-fill)] px-14 py-4 text-xl font-bold uppercase">List on Axidra</Link>
